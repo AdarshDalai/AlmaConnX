@@ -10,3 +10,4 @@ sentencepiece
 torch
 pydantic
 python-dotenv
+setuptools>=70.0.0
