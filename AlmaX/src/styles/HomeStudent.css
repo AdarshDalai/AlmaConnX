@@ -1,0 +1,79 @@
+
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.flex-container {
+  display: flex;
+  gap: 1rem; /* Space between the three sections */
+  min-height: 80vh; /* Ensure it takes up enough vertical space */
+}
+
+.ownInfo {
+  flex: 1; /* Takes up 1/3 of the space */
+  display: flex;
+  flex-direction: column;
+  background-color: #c0c0c0; /* Gray background as in the image */
+  padding: 1rem;
+  border: 1px solid #000; /* Black border as in the image */
+}
+
+.cover-pic {
+  width: 100%;
+  height: 150px; /* Adjust height as needed */
+  overflow: hidden;
+}
+
+.cover-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensure the image covers the area */
+}
+
+.dp {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%; /* Circular DP */
+  overflow: hidden;
+  margin: -40px 0 1rem 1rem; /* Position DP overlapping the cover pic */
+  border: 2px solid #fff; /* Optional: white border for DP */
+}
+
+.dp img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info {
+  margin-top: 1rem;
+}
+
+.info p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.main-content {
+  flex: 1; /* Takes up 1/3 of the space */
+  background-color: #f0f0f0; /* Lighter gray for the middle section */
+  padding: 1rem;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: italic; /* Placeholder text style */
+}
+
+.resume-part {
+  flex: 1; /* Takes up 1/3 of the space */
+  background-color: #a9a9a9; /* Darker gray for the resume section */
+  padding: 1rem;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
