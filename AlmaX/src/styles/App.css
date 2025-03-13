@@ -1,58 +1,8 @@
-/* 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+*{
+  
 }
-
-html {
-  font-family: "urbanist";
+.content-container {
+  margin-top: 5rem;
+  /* padding: 1rem; */
+  
 }
-
-p,
-li,
-a,
-button {
-  letter-spacing: 0.1rem;
-}
-
-li{
-  list-style-type: none;
-}
-
-a{
-  color: black;
-
-  &:hover{
-    color: aqua;
-    text-decoration: underline;
-  }
-}
-
-header {
-  height: 10rem;
-  background-color: beige;
-  width: 100%;
-}
-
-.container {
-  max-width: 90%;
-  margin: auto;
-  height: 10rem;
-}
-
-.grid{
-  display: grid;
-}
-
-.navbar-grid{
-  grid-template-columns: .5fr 1fr;
-  align-items: center;
-  height: 10rem;
-}
-
-nav ul{
-  display: flex;
-  justify-content: flex-end;
-  gap: 2rem;
-} */
