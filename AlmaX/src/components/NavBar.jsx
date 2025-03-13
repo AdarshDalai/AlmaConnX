@@ -7,8 +7,7 @@ import '../styles/NavBar.css'
 export default function NavBar() {
   return (
     <header className="navbar">
-      <div className="container">
-        <div className="grid-container">
+      <div className="navbar-container">
 
           <div className="logo">
             <Link to="/"><button className="logo-button">AlmaX</button></Link>
@@ -38,7 +37,6 @@ export default function NavBar() {
               </li>
             </ul>
           </nav>
-        </div>
       </div>
     </header>
   );
