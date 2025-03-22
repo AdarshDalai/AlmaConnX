@@ -2,21 +2,33 @@ from pymongo import MongoClient
 from time import sleep
 from dotenv import load_dotenv
 import os
+import logging
+import ssl
 
-# Load environment variables from .env
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 load_dotenv()
 
 def get_mongo_client():
     atlas_uri = os.getenv("MONGODB_URI")
+    logger.info(f"Loaded MONGODB_URI: {atlas_uri if atlas_uri else 'Not set'}")
     if not atlas_uri:
         raise ValueError("MONGODB_URI not set in .env file")
     for _ in range(10):  # Retry 10 times
         try:
-            client = MongoClient(atlas_uri)
+            client = MongoClient(
+                atlas_uri,
+                serverSelectionTimeoutMS=5000,
+                ssl=True,
+                ssl_cert_reqs=ssl.CERT_REQUIRED,  # Require valid certificates
+                tlsMinVersion=ssl.PROTOCOL_TLSv1_2  # Force TLS 1.2+
+            )
             client.server_info()  # Test connection
+            logger.info("Connected to MongoDB Atlas successfully")
             return client
         except Exception as e:
-            print(f"Failed to connect to MongoDB Atlas: {e}, retrying in 2 seconds...")
+            logger.error(f"Failed to connect to MongoDB Atlas: {e}, retrying in 2 seconds...")
             sleep(2)
     raise Exception("Failed to connect to MongoDB Atlas after retries")
 

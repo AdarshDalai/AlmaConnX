@@ -1,17 +1,13 @@
-FROM python:3.9-slim
-
-# Set working directory
+FROM python:3.11-bullseye
 WORKDIR /app
-
-# Copy requirements file
+RUN apt-get update && apt-get install -y \
+    libssl-dev \
+    ca-certificates \
+    && apt-get upgrade -y openssl \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 COPY Backend/requirements.txt .
-
-# Upgrade pip to the latest version before installing dependencies
-RUN pip install --upgrade pip && pip install -r requirements.txt
-
-# Copy application files
+RUN pip install -r requirements.txt && pip install --upgrade setuptools>=70.0.0
 COPY Backend/ ./Backend/
 COPY Recommender/ ./Recommender/
-
-# Run the application with Uvicorn
 CMD ["uvicorn", "Backend.main:app", "--host", "0.0.0.0", "--port", "80"]
