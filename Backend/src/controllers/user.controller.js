@@ -1,9 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import {User} from "../models/user.model.js"
-import uploadOnCloudinary from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken"
 
 const generateAccessAndRefreshToken = async(userId) => {
@@ -24,21 +22,16 @@ const generateAccessAndRefreshToken = async(userId) => {
 }
 
 const registerUser = asyncHandler( async (req, res)=>{
-    // res.status(200).json({
-    //     message: "ok"
-    // })
 
-    const{fullname, email, password} = req.body
+    const{fullname, email, password, graduationyear, department} = req.body
     console.log("email: ", email);
 
-    // if(fullName === ""){
-    //     throw new ApiError(400, "FullName is required")
-    // }
     if(
-        [fullname,email,password].some((field)=> field?.trim() === "")
+        [fullname,email,password, graduationyear].some((field) => field?.toString().trim() === "")
     ){
-        throw new ApiError(400,"All fields are required")
+        throw new ApiError(400,"All fields are required");
     }
+
     const existedUser = await User.findOne({ email });
 
 
@@ -46,11 +39,17 @@ const registerUser = asyncHandler( async (req, res)=>{
         throw new ApiError(409,"User with email already exist")
     }
 
+    const currentYear = new Date().getFullYear;
+    const userType = graduationyear>currentYear? 'student' : 'alumni';
+
     const user = await User.create({
         fullname,
         email,
         password,
-    })
+        graduationyear,
+        department,
+        userType
+    });
 
     // here i am fetching created user without sensitive info 
     const createdUser = await User.findById(user._id).select(
@@ -73,7 +72,7 @@ const loginUser = asyncHandler(async(req,res) => {
     console.log(email);
 
     if(!email){
-        throw new ApiError(400, "email is required")
+        throw new ApiError(400, "Email is required")
     }
 
     const user = await User.findOne({email})
@@ -87,6 +86,9 @@ const loginUser = asyncHandler(async(req,res) => {
     if(!isPasswordValid){
         throw new ApiError(401, "Invalid user credentials")
     }
+
+    //to check if change needed student alumni
+    await user.checkAndUpdateUserType();
 
     //genereating token
     const{accessToken,refreshToken} = await generateAccessAndRefreshToken(user._id)
@@ -213,6 +215,11 @@ const changeCurrentPassword = asyncHandler(async(req,res) => {
 })
 
 const getCurrentUser = asyncHandler(async(req,res) => {
+
+    await req.user.checkAndUpdateUserType();
+
+    const user = await User.findById(req.user._id).select("-password -refreshToken");
+
     return res
     .status(200)
     .json(new ApiResponse(200, req.user, "Current user fetched successfully"))
