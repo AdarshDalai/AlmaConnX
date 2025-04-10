@@ -111,9 +111,13 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.checkAndUpdateUserType = async function () {
-  const currentYear = new Date().getFullYear();
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
 
-  if (this.userType === 'student' && this.graduationYear <= currentYear) {
+  if (this.userType === 'student' &&
+    (this.graduationYear < currentYear ||
+      (this.graduationYear === currentYear && currentMonth > 5))) {
     this.userType = 'alumni';
     await this.save();
     return true;
