@@ -14,16 +14,12 @@ const ProfileForm = ({ initialData }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
   const avatarInputRef = useRef(null);
   const coverImageInputRef = useRef(null);
-
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
-
   const [coverImageFile, setCoverImageFile] = useState(null);
   const [coverImagePreview, setCoverImagePreview] = useState(null);
-
   const [formData, setFormData] = useState({
     aboutMe: "",
     experience: [],
@@ -39,11 +35,9 @@ const ProfileForm = ({ initialData }) => {
         education: initialData.education || [],
         skills: initialData.skills || [],
       });
-
       if (initialData.avatar) {
         setAvatarPreview(initialData.avatar);
       }
-
       if (initialData.coverImage) {
         setCoverImagePreview(initialData.coverImage);
       }
@@ -186,24 +180,89 @@ const ProfileForm = ({ initialData }) => {
     setIsLoading(true);
     setError("");
 
+    let updatesSuccessful = false;
+    let profileUpdated = false;
+    let avatarUpdated = false;
+    let coverUpdated = false;
+
     try {
-      const profileResponse = await updateProfileDetails(formData);
+      const updatePromises = [];
+
+      if (
+        initialData?.aboutMe !== formData.aboutMe ||
+        JSON.stringify(initialData?.experience || []) !==
+          JSON.stringify(formData.experience) ||
+        JSON.stringify(initialData?.education || []) !==
+          JSON.stringify(formData.education) ||
+        JSON.stringify(initialData?.skills || []) !==
+          JSON.stringify(formData.skills)
+      ) {
+        const profilePromise = updateProfileDetails(formData)
+          .then(() => {
+            console.log("Profile details updated successfully");
+            profileUpdated = true;
+            return true;
+          })
+          .catch((error) => {
+            console.error("Error updating profile details:", error);
+            throw new Error("Failed to update profile details");
+          });
+
+        updatePromises.push(profilePromise);
+      }
 
       if (avatarFile) {
-        const avatarResponse = await updateProfileAvatar(avatarFile);
-        console.log("Avatar updated successfully:", avatarResponse);
+        const avatarPromise = updateProfileAvatar(avatarFile)
+          .then((response) => {
+            console.log("Avatar updated successfully:", response);
+            avatarUpdated = true;
+            return true;
+          })
+          .catch((error) => {
+            console.error("Error updating avatar:", error);
+            throw new Error("Failed to update avatar");
+          });
+
+        updatePromises.push(avatarPromise);
       }
 
       if (coverImageFile) {
-        const coverResponse = await updateProfileCoverImage(coverImageFile);
-        console.log("Cover image updated successfully:", coverResponse);
+        const coverPromise = updateProfileCoverImage(coverImageFile)
+          .then((response) => {
+            console.log("Cover image updated successfully:", response);
+            coverUpdated = true;
+            return true;
+          })
+          .catch((error) => {
+            console.error("Error updating cover image:", error);
+            throw new Error("Failed to update cover image");
+          });
+
+        updatePromises.push(coverPromise);
       }
 
-      alert("Profile updated successfully!");
+      if (updatePromises.length > 0) {
+        await Promise.allSettled(updatePromises);
 
-      navigate("/profile");
+        if (profileUpdated || avatarUpdated || coverUpdated) {
+          updatesSuccessful = true;
+
+          let message = "Updated: ";
+          if (profileUpdated) message += "profile details, ";
+          if (avatarUpdated) message += "avatar, ";
+          if (coverUpdated) message += "cover image, ";
+          message = message.slice(0, -2);
+
+          alert(message);
+          navigate("/profile");
+        } else {
+          setError("No changes were successfully applied.");
+        }
+      } else {
+        alert("No changes to update.");
+      }
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error in update process:", error);
       setError(error.message || "Failed to update profile");
     } finally {
       setIsLoading(false);
@@ -216,7 +275,6 @@ const ProfileForm = ({ initialData }) => {
     <div className="profile-form-container">
       <h2 className="profile-form-title">Edit Profile</h2>
       {error && <div className="profile-form-error">{error}</div>}
-
       <form className="profile-form" onSubmit={handleSubmit}>
         <div className="form-section">
           <h3>Profile Images</h3>
