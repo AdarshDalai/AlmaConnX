@@ -52,7 +52,7 @@ const updateProfileAvatar = asyncHandler(async (req, res) => {
     { $set: { avatar: avatar.url } },
     { new: true }
   ).select("-password -refreshToken");
-
+  console.log("updateProfileAvatar called, req.file:", req.file);
   return res.status(200).json(
     new ApiResponse(200, user, "Profile avatar updated successfully")
   );

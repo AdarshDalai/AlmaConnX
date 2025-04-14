@@ -24,6 +24,7 @@ const generateAccessAndRefreshToken = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
 
     const { fullname, email, password, graduationyear, department } = req.body
+    const graduationYearNumber = parseInt(graduationyear);
     console.log("email: ", email);
 
     if (
@@ -43,7 +44,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
 
-    const userType = (graduationyear > currentYear || (graduationyear === currentYear && currentMonth <= 5))? 'student' : 'alumni';
+    const userType = (graduationyear > currentYear || (graduationyear === currentYear && currentMonth <= 5)) ? 'student' : 'alumni';
     const user = await User.create({
         fullname,
         email,
@@ -61,6 +62,11 @@ const registerUser = asyncHandler(async (req, res) => {
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering the user.")
     }
+
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+    console.log("Method:", req.method);
+    console.log("Current date:", now);
 
     return res.status(201).json(
         new ApiResponse(200, createdUser, "User registered successfully.")
@@ -167,7 +173,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
         const options = {
             httpOnly: true,
-            secure: true
+            secure: true,
+            sameSite: 'lax'
         }
 
         const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(user._id)
@@ -216,16 +223,71 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 })
 
-const getCurrentUser = asyncHandler(async (req, res) => {
+// const getCurrentUser = asyncHandler(async (req, res) => {
 
+//     await req.user.checkAndUpdateUserType();
+
+//     const user = await User.findById(req.user._id).select("-password -refreshToken");
+
+//     return res
+//         .status(200)
+//         .json(new ApiResponse(200, req.user, "Current user fetched successfully"))
+// })
+const getCurrentUser = asyncHandler(async(req, res) => {
     await req.user.checkAndUpdateUserType();
-
-    const user = await User.findById(req.user._id).select("-password -refreshToken");
-
     return res
-        .status(200)
-        .json(new ApiResponse(200, req.user, "Current user fetched successfully"))
-})
+      .status(200)
+      .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
+  });
+
+//new updatation
+const getStudents = asyncHandler(async (req, res) => {
+    try {
+        const students = await User.find({ userType: 'student' })
+            .select("fullname email department graduationyear avatar")
+            .sort({ fullname: 1 });
+
+        return res.status(200).json(
+            new ApiResponse(200, students, "Students fetched successfully")
+        );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Failed to get students");
+    }
+});
+
+const getAlumni = asyncHandler(async (req, res) => {
+    try {
+        const alumni = await User.find({ userType: 'alumni' })
+            .select("fullname email department graduationyear avatar")
+            .sort({ fullname: 1 });
+
+        return res.status(200).json(
+            new ApiResponse(200, alumni, "Alumni fetched successfully")
+        );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Failed to get alumni");
+    }
+});
+
+const getUserById = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await User.findById(userId)
+            .select("-password -refreshToken");
+
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+
+        return res.status(200).json(
+            new ApiResponse(200, user, "User details fetched successfully")
+        );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Failed to get user details");
+    }
+});
+
 
 
 
@@ -235,5 +297,8 @@ export {
     logoutUser,
     refreshAccessToken,
     changeCurrentPassword,
-    getCurrentUser
+    getCurrentUser,
+    getStudents,
+    getAlumni,
+    getUserById
 };
