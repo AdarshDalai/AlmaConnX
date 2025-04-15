@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pymongo
+numpy
+pandas
+transformers
+scikit-learn
+faiss-cpu
+sentencepiece
+torch
+pydantic
+python-dotenv
+setuptools>=70.0.0

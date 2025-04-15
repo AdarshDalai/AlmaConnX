@@ -1,1 +1,5 @@
 .conda/
+.env
+Recommendation System/*
+.pkl
+.venv/

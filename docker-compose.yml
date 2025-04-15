@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - ./Recommender/data:/app/Recommender/data
+    env_file:
+      - .env  # Load .env file
+volumes:
+  mongo-data:
