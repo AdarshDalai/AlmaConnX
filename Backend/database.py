@@ -11,18 +11,15 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 def get_mongo_client():
-    atlas_uri = os.getenv("MONGODB_URI")
-    logger.info(f"Loaded MONGODB_URI: {atlas_uri if atlas_uri else 'Not set'}")
+    atlas_uri = os.getenv("MONGO_NIRMAL")
+    logger.info(f"Loaded MONGO_NIRMAL: {atlas_uri if atlas_uri else 'Not set'}")
     if not atlas_uri:
         raise ValueError("MONGODB_URI not set in .env file")
     for _ in range(10):  # Retry 10 times
         try:
             client = MongoClient(
                 atlas_uri,
-                serverSelectionTimeoutMS=5000,
-                ssl=True,
-                ssl_cert_reqs=ssl.CERT_REQUIRED,  # Require valid certificates
-                tlsMinVersion=ssl.PROTOCOL_TLSv1_2  # Force TLS 1.2+
+                serverSelectionTimeoutMS=5000
             )
             client.server_info()  # Test connection
             logger.info("Connected to MongoDB Atlas successfully")
@@ -33,5 +30,5 @@ def get_mongo_client():
     raise Exception("Failed to connect to MongoDB Atlas after retries")
 
 client = get_mongo_client()
-db = client["career_platform"]
+db = client["almax"]
 users_collection = db["users"]
