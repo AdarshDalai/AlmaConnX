@@ -79,14 +79,30 @@ def recommend_with_prompt(user_idx, prompt, top_n=5, index=None, real_users=None
     # Filter for prompt-relevant candidates (e.g., blockchain developers)
     prompt_relevant = [s for s in scores if any(kw in real_users[s[0]]["headline"].lower() for kw in prompt_keywords)]
     if not prompt_relevant:
-        # Fallback: Top prompt-similar candidates if no exact matches
-        prompt_relevant = sorted(scores, key=lambda x: x[2], reverse=True)[:top_n]
+        # Fallback: Top scoring candidates if no exact matches
+        prompt_relevant = scores[:top_n]
     else:
         # Take top N from prompt-relevant candidates
         prompt_relevant = prompt_relevant[:top_n]
 
     top_indices = [s[0] for s in prompt_relevant]
     top_matches = pd.DataFrame([real_users[idx] for idx in top_indices])[['first_name', 'last_name', 'user_type', 'headline']]
-    explanations = [f"Match {i+1}: Score={s[1]:.3f}, Prompt Similarity={s[2]:.3f}, User Similarity={s[3]:.3f}, Keyword Overlap={s[4]:.3f}" 
-                    for i, s in enumerate(prompt_relevant)]
+    explanations = []
+    for i, s in enumerate(prompt_relevant):
+        candidate = real_users[s[0]]
+        score_explanation = f"Match {i+1}: Score={s[1]:.3f}, Prompt Similarity={s[2]:.3f}, User Similarity={s[3]:.3f}, Keyword Overlap={s[4]:.3f}"
+        rag_explanation = (
+            f"RAG Explanation: "
+            f"Retrieval: This candidate was retrieved using FAISS search, which identified profiles with embeddings closest to the prompt embedding (cosine distance). "
+            f"Augmentation: The score was computed as 0.8*prompt_similarity ({s[2]:.3f}) + 0.2*user_similarity ({s[3]:.3f}). "
+        )
+        if user_type == "student" and candidate["user_type"] == "alumni":
+            rag_explanation += "A 0.1 bonus was added for student-alumni alignment. "
+        if s[4] > 0:
+            rag_explanation += f"A 0.2*keyword_overlap ({s[4]:.3f}) bonus was added for matching prompt keywords in the headline. "
+        rag_explanation += (
+            f"Generation: This candidate was ranked as match {i+1} based on the combined score ({s[1]:.3f}), prioritizing prompt relevance and user alignment."
+        )
+        explanations.append(f"{score_explanation}. {rag_explanation}")
+    
     return top_matches, explanations

@@ -1,0 +1,14 @@
+Top Matches for 'Any Frontend Developer to connect with?':
+     FirstName    LastName user_type                                                    Headline
+190        Zoe  Zimmermann   student                                         Front End Developer
+2575     Tomas    Svensson   student                            Front End Developer at Episerver
+3656   Cecilia   Zimmerman   officer    Front End Developer | Building engaging user experiences
+3868    Niklas   Ulrichsen   officer  Front End Developer | Building responsive web applications
+185       Zoey     Cordova   officer    Front End Developer | Building seamless user experiences
+
+Explanations:
+Match 1: Score=0.651, Prompt Similarity=0.693, User Similarity=0.482, Keyword Overlap=0.000
+Match 2: Score=0.666, Prompt Similarity=0.691, User Similarity=0.565, Keyword Overlap=0.000
+Match 3: Score=0.681, Prompt Similarity=0.688, User Similarity=0.654, Keyword Overlap=0.000
+Match 4: Score=0.681, Prompt Similarity=0.687, User Similarity=0.653, Keyword Overlap=0.000
+Match 5: Score=0.675, Prompt Similarity=0.684, User Similarity=0.638, Keyword Overlap=0.000
